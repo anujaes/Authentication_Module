@@ -1,6 +1,8 @@
 import '../../css/login.css'
-import { LockOutlined }         from "@mui/icons-material";
-import React, { useEffect, useState }                    from "react";
+import { LockOutlined }                     from "@mui/icons-material";
+import React, { useEffect, useState }       from "react";
+import { isValidEmail }                     from '../../utils/validateEmail';
+import {Alert}                              from '@mui/material';
 import { Avatar,
     Box,
     Typography,
@@ -16,6 +18,7 @@ function Login() {
 
     const [credential,setCredential] = useState({email:'',password:''});
     const [validation,setValidation] = useState(true)
+    const [flag, setFlag]            = useState(false)
 
     function handleText(evt) {
         setCredential( (prev) => {
@@ -28,10 +31,19 @@ function Login() {
     }
 
     function checkValidation() {
-        if (credential.email.length && credential.password.length)
+        if (credential.email.length && credential.password.length && isValidEmail(credential.email))
             setValidation(false)
         else
             setValidation(true)
+    }
+
+    function isValid(){
+        if(!isValidEmail(credential.email)){
+            setFlag(true)
+        }
+        else{
+            setFlag(false)
+        }
     }
 
     useEffect(()=>{
@@ -60,6 +72,7 @@ function Login() {
                         autoComplete    = "email"
                         onChange        = {handleText}
                         value           = {credential.email}
+                        onBlur          = {isValid}
                     />
                     <TextField
                         required
@@ -101,6 +114,9 @@ function Login() {
                     </Grid>
                 </Box>
             </div>
+            {
+                flag ? <Alert sx={{position:'absolute',top:50,right:15,transition:'0.5s ease'}} close="close" severity="error">incorrect mail!</Alert> : ''
+            }
         </div>
     )
 }

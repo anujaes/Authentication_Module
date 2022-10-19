@@ -1,7 +1,9 @@
 import '../../css/signup.css'
 import '../../css/common.css'
-import React, { useEffect, useState }                    from "react";
-import {Flag, HowToRegOutlined}       from '@mui/icons-material';
+import React, { useEffect, useState }       from "react";
+import { isValidEmail }                     from '../../utils/validateEmail';
+import {HowToRegOutlined}                   from '@mui/icons-material';
+import {Alert}                              from '@mui/material';
 import { Avatar,
     Box,
     Typography,
@@ -12,10 +14,11 @@ import { Avatar,
 }                               from "@mui/material";
 
 function SignUp(){
-    const [userData,setUserData] = useState({email:'',fname:'',lname:'',password:'',cpassword:''})
-    const [validation,setValidation] = useState(true);
+    const [userData,setUserData]        = useState({email:'',fname:'',lname:'',password:'',cpassword:''})
+    const [validation,setValidation]    = useState(true);
+    const [flag, setFlag]               = useState(false)
 
-    function handleText(event){
+    function handleText(event) {
         setUserData( (prev)=> {
             return {
                 ...prev,
@@ -27,6 +30,7 @@ function SignUp(){
     function checkValidation(){
         if( userData.fname.length &&
             userData.lname.length &&
+            isValidEmail(userData.email) &&
             userData.password.length &&
             userData.cpassword == userData.password) {
                 setValidation(false)
@@ -34,6 +38,13 @@ function SignUp(){
         else{
             setValidation(true)
         }
+    }
+
+    function checkMail() {
+        if(!isValidEmail(userData.email))
+            setFlag(true)
+        else
+            setFlag(false)
     }
 
     useEffect(()=>{
@@ -55,7 +66,6 @@ function SignUp(){
                             <TextField
                                 required
                                 fullWidth
-                                autoFocus
                                 margin          = "normal"
                                 id              = "fname"
                                 type            = "text"
@@ -91,6 +101,8 @@ function SignUp(){
                         type            = "email"
                         autoComplete    = "email"
                         onChange        = {handleText}
+                        onBlur          = {checkMail}
+                        variant         = "outlined"
                         value           = {userData.email}
                     />
                     <TextField
@@ -135,6 +147,9 @@ function SignUp(){
                     </Grid>
                 </Box>
             </div>
+            {
+                flag ? <Alert sx={{position:'absolute',top:50,right:15,transition:'0.5s ease'}} close="close" severity="error">incorrect mail!</Alert> : ''
+            }
         </div>
     )
 }
