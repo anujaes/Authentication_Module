@@ -2,8 +2,10 @@ import '../../css/signup.css'
 import '../../css/common.css'
 import React, { useEffect, useState }       from "react";
 import { isValidEmail }                     from '../../utils/validateEmail';
+import { register }                         from '../../apis/register';
 import {HowToRegOutlined}                   from '@mui/icons-material';
 import {Alert}                              from '@mui/material';
+import { useNavigate }                      from 'react-router-dom';
 import { Avatar,
     Box,
     Typography,
@@ -13,10 +15,14 @@ import { Avatar,
     Button
 }                               from "@mui/material";
 
+
 function SignUp(){
     const [userData,setUserData]        = useState({email:'',fname:'',lname:'',password:'',cpassword:''})
     const [validation,setValidation]    = useState(true);
-    const [flag, setFlag]               = useState(false)
+    const [flag, setAlertFlag]               = useState(false);
+    const [alertOptions,setAlertOptions]     = useState({})
+
+    const  navigate = useNavigate();
 
     function handleText(event) {
         setUserData( (prev)=> {
@@ -27,12 +33,20 @@ function SignUp(){
         })
     }
 
+    function showAlert(options,sec){
+        setAlertOptions(options)
+        setAlertFlag(true);
+        setTimeout(() => {
+            setAlertFlag(false)
+        }, sec*1000);
+    }
+
     function checkValidation(){
         if( userData.fname.length &&
             userData.lname.length &&
             isValidEmail(userData.email) &&
             userData.password.length &&
-            userData.cpassword == userData.password) {
+            userData.cpassword === userData.password) {
                 setValidation(false)
             }
         else{
@@ -42,14 +56,38 @@ function SignUp(){
 
     function checkMail() {
         if(!isValidEmail(userData.email))
-            setFlag(true)
-        else
-            setFlag(false)
+            showAlert({severity:"warning",message:'incorrect email!'},5)
     }
 
     useEffect(()=>{
         checkValidation();
     })
+
+    const handleForm = async (event) => {
+        event.preventDefault()
+        const newUser = {
+            fname       : userData.fname,
+            lname       : userData.lname,
+            email       : userData.email,
+            password    : userData.password,
+        };
+
+        try {
+            let res = await register(newUser);
+
+            if ( res.reply === 'success'){
+                showAlert({severity:'success',message:'Registration successful!\nyou will be redirect to login page!'},5)
+                setTimeout(()=>{navigate('/')},5000)
+            }
+
+            if ( res.reply === 'exists')
+                window.alert("Email already exists!")
+        }
+        catch(error)
+        {
+            console.log('[Error from server!]\n',error)
+        }
+    }
 
     return(
         <div className="container flex-center">
@@ -60,7 +98,7 @@ function SignUp(){
                 <Typography component="h1" variant="h5">
                     Create Account
                 </Typography>
-                <Box component="form" /*onSubmit={}*/ noValidate sx={{ mt: 1 }}>
+                <Box component="form" onSubmit={handleForm} noValidate={false} sx={{ mt: 1 }}>
                     <Grid container>
                         <Grid item>
                             <TextField
@@ -148,7 +186,7 @@ function SignUp(){
                 </Box>
             </div>
             {
-                flag ? <Alert sx={{position:'absolute',top:50,right:15,transition:'0.5s ease'}} close="close" severity="error">incorrect mail!</Alert> : ''
+                flag ? <Alert sx={{position:'absolute',top:10}} severity={alertOptions.severity}>{alertOptions.message}</Alert> : ''
             }
         </div>
     )

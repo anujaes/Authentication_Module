@@ -1,8 +1,8 @@
 import '../../css/login.css'
+import { login }                            from '../../apis/login';
+import { isValidEmail }                     from '../../utils/validateEmail';
 import { LockOutlined }                     from "@mui/icons-material";
 import React, { useEffect, useState }       from "react";
-import { isValidEmail }                     from '../../utils/validateEmail';
-import {Alert}                              from '@mui/material';
 import { Avatar,
     Box,
     Typography,
@@ -11,14 +11,18 @@ import { Avatar,
     Grid,
     Link,
     Checkbox,
-    Button
-}                               from "@mui/material";
+    Button,
+    Alert
+}                                           from "@mui/material";
+import { useNavigate } from 'react-router-dom';
+
 
 function Login() {
-
-    const [credential,setCredential] = useState({email:'',password:''});
-    const [validation,setValidation] = useState(true)
-    const [flag, setFlag]            = useState(false)
+    const [credential,setCredential]        = useState({email:'',password:''});
+    const [validation,setValidation]        = useState(true)
+    const [flag, setAlertFlag]              = useState(false)
+    const [alertOptions,setAlertOptions]    = useState({})
+    const navigate                          = useNavigate();
 
     function handleText(evt) {
         setCredential( (prev) => {
@@ -30,7 +34,7 @@ function Login() {
         )
     }
 
-    function checkValidation() {
+    function checkFormValidation() {
         if (credential.email.length && credential.password.length && isValidEmail(credential.email))
             setValidation(false)
         else
@@ -39,16 +43,36 @@ function Login() {
 
     function isValid(){
         if(!isValidEmail(credential.email)){
-            setFlag(true)
-        }
-        else{
-            setFlag(false)
+            showAlert({severity:"warning",message:'incorrect email!'},5)
         }
     }
 
     useEffect(()=>{
-        checkValidation()
+        checkFormValidation()
     })
+
+    const handleForm = async(event) => {
+        event.preventDefault();
+
+        let res = await login(credential.email,credential.password);
+        let {reply,status} = res;
+        if(reply === 'success' && status)
+            navigate('/home')
+        if( reply === 'invalid' && status ) {
+            alert('wrong credentials');
+        }
+        else if ( !status ) {
+            console.log('Error at server:',reply)
+        }
+    };
+
+    function showAlert(options,sec){
+        setAlertOptions(options)
+        setAlertFlag(true);
+        setTimeout(() => {
+            setAlertFlag(false)
+        }, sec*1000);
+    }
 
     return (
         <div className="container flex-center">
@@ -59,7 +83,7 @@ function Login() {
                 <Typography component="h1" variant="h5">
                     Sign In
                 </Typography>
-                <Box component="form" /*onSubmit={}*/ noValidate sx={{ mt: 1 }}>
+                <Box component="form" onSubmit={handleForm} noValidate sx={{ mt: 1 }}>
                     <TextField
                         required
                         fullWidth
@@ -115,7 +139,7 @@ function Login() {
                 </Box>
             </div>
             {
-                flag ? <Alert sx={{position:'absolute',top:50,right:15,transition:'0.5s ease'}} close="close" severity="error">incorrect mail!</Alert> : ''
+                flag ? <Alert sx={{position:'absolute',top:10}} severity={alertOptions.severity}>{alertOptions.message}</Alert> : ''
             }
         </div>
     )
