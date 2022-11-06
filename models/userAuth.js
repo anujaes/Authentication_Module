@@ -6,9 +6,14 @@ mongo.login = async function(data){
 	try{
 		const { email, password } = data;
 		const response = await userSchema.findOne({ email: email });
+		let userData = {
+			firstName	: response.firstName,
+			lastName	: response.lastName,
+			email		: response.email
+		}
 		if (response) {
 			const doc = await bcrypt.compare(password, response.password);
-			return doc;
+			return {check:doc,userData:userData};
 		} else {
 			return false;
 		}

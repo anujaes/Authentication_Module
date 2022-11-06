@@ -5,7 +5,7 @@ export const login = async (data) => {
         const response = await axios.post(`http://localhost:5000/user/login`, data)
 
         if (response.status === 201)
-            return { reply: 'success', status: true }
+            return { reply: 'success', status: true, userData: response.data.userData }
     }
     catch (error) {
         if (error.response.status === 401)

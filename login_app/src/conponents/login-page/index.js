@@ -15,6 +15,7 @@ import { Avatar,
     Alert
 }                                           from "@mui/material";
 import { useNavigate } from 'react-router-dom';
+import { getSession, setSession } from '../../utils/session';
 
 
 function Login() {
@@ -51,15 +52,24 @@ function Login() {
         checkFormValidation()
     })
 
+    useEffect(() =>{
+        let user = getSession('user');
+        if ( user ) {
+            //useContext ///TODO
+            navigate('/home');
+        }
+    },[])
+
     const handleForm = async(event) => {
         event.preventDefault();
 
-        let res             = await login(credential);
-        let {reply,status}  = res;
+        let res = await login(credential);
+        let {reply,status,userData}  = res;
 
         if(reply === 'success' && status){
-            navigate('/home')
+            setSession('user',userData);
             setCredential({email:'',password:''});
+            navigate('/home');
         }
 
         if( reply === 'invalid' && status ) {

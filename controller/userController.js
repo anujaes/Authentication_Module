@@ -6,8 +6,8 @@ user.userLogin = async function (req, res) {
 	try {
 		let data = req.body;
 		let response = await userModel.login(data);
-		if (response) {
-			return res.status(201).send({ reply: "success" })
+		if (response.check) {
+			return res.status(201).send({ reply: "success",userData:response.userData })
 		}
 		else {
 			return res.status(401).send({ reply: 'success' })
