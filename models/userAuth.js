@@ -2,15 +2,15 @@ const userSchema	= require('../schema/userSchema');
 const bcrypt		= require('bcryptjs');
 
 const mongo = {};
-mongo.userLogin = async function(data){
+mongo.login = async function(data){
 	try{
 		const { email, password } = data;
 		const response = await userSchema.findOne({ email: email });
 		if (response) {
 			const doc = await bcrypt.compare(password, response.password);
 			return doc;
-		}else{
-			return response;
+		} else {
+			return false;
 		}
 	}
 	catch(error){

@@ -1,22 +1,17 @@
-export const login = async (username, password) => {
+import axios from "axios";
+
+export const login = async (data) => {
     try {
-        const response = await fetch(`http://localhost:5000/user/login`, {
-            method  : "POST",
-            headers : { "Content-Type": "application/json" },
-            body    : JSON.stringify({
-                                        username: username,
-                                        password: password
-                                    })
-        })
+        const response = await axios.post(`http://localhost:5000/user/login`, data)
 
-        const res = await response.json();
-
-        if (res.message === "success")
-            return { reply: 'succcess', status: true }
-        else
-            return { reply: 'invalid', status: true }
+        if (response.status === 201)
+            return { reply: 'success', status: true }
     }
     catch (error) {
-        return { reply: error, status: false }
+        if (error.response.status === 401)
+            return { reply: 'invalid', status: true }
+
+        if (error.response.status === 500)
+            return { reply: 'server_error', status: false }
     }
 }

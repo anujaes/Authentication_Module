@@ -5,18 +5,16 @@ const user = {};
 user.userLogin = async function (req, res) {
 	try {
 		let data = req.body;
-		let loginResponse = await userModel.userLogin(data);
-		if (loginResponse) {
-			if (loginResponse.message === 'password-success')
-				return res.status(201).json({ message: "success" })
-			if (loginResponse.message === 'password-failure')
-				return (res.json({ error: "Invalid Credentials" }));
+		let response = await userModel.login(data);
+		if (response) {
+			return res.status(201).send({ reply: "success" })
 		}
 		else {
-			console.log("Error Occured");
+			return res.status(401).send({ reply: 'success' })
 		}
 	} catch (error) {
-		console.log(error)
+		console.log('[Controller Error]\n',error)
+		return res.status(500).send({ reply: error });
 	}
 }
 

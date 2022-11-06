@@ -43,7 +43,7 @@ function Login() {
 
     function isValid(){
         if(!isValidEmail(credential.email)){
-            showAlert({severity:"warning",message:'incorrect email!'},5)
+            showAlert({severity:"error",message:'incorrect email!'},5)
         }
     }
 
@@ -54,16 +54,20 @@ function Login() {
     const handleForm = async(event) => {
         event.preventDefault();
 
-        let res = await login(credential.email,credential.password);
-        let {reply,status} = res;
-        if(reply === 'success' && status)
+        let res             = await login(credential);
+        let {reply,status}  = res;
+
+        if(reply === 'success' && status){
             navigate('/home')
+            setCredential({email:'',password:''});
+        }
+
         if( reply === 'invalid' && status ) {
-            alert('wrong credentials');
+            showAlert({severity:"error",message:'invalid email and password!'},5);
+            setCredential({email:'',password:''});
         }
-        else if ( !status ) {
-            console.log('Error at server:',reply)
-        }
+        if ( !status )
+            showAlert({severity:"error",message:'Something went wrong'},5);
     };
 
     function showAlert(options,sec){
