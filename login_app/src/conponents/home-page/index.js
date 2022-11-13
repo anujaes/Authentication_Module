@@ -1,15 +1,16 @@
 import '../../css/home.css'
-import { Button } from '@mui/material';
-import React from 'react';
-import { getSession } from '../../utils/session';
-import { useNavigate } from 'react-router-dom';
+import { Button }                           from '@mui/material';
+import React                                from 'react';
+import { deleteSession, getSession }        from '../../utils/session';
+import { useNavigate }                      from 'react-router-dom';
+
 function Home() {
 
     let user = getSession('user');
     let navigate = useNavigate();
 
     function handleLogout(){
-        localStorage.removeItem('user');
+        deleteSession('user')
         navigate('/')
     }
 

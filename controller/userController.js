@@ -1,5 +1,5 @@
-const userModel = require('../models/userAuth');
-
+const userModel 		= require('../models/userAuth');
+// const { createTokens } 	= require('../scripts/JWT');
 const user = {};
 
 user.userLogin = async function (req, res) {
@@ -7,6 +7,7 @@ user.userLogin = async function (req, res) {
 		let data = req.body;
 		let response = await userModel.login(data);
 		if (response.check) {
+			// const accessTokens = createTokens(response.userData); //TODO
 			return res.status(201).send({ reply: "success",userData:response.userData })
 		}
 		else {

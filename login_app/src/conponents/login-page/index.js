@@ -1,8 +1,10 @@
 import '../../css/login.css'
-import { login }                            from '../../apis/login';
-import { isValidEmail }                     from '../../utils/validateEmail';
-import { LockOutlined }                     from "@mui/icons-material";
-import React, { useEffect, useState }       from "react";
+import React, { useEffect, useState }                       from "react";
+import { LockOutlined }                                     from "@mui/icons-material";
+import { useNavigate }                                      from 'react-router-dom';
+import { login }                                            from '../../apis/login';
+import { isValidEmail }                                     from '../../utils/validateEmail';
+import { setSession, getLocalSession, setCurrentSession }   from '../../utils/session';
 import { Avatar,
     Box,
     Typography,
@@ -13,9 +15,8 @@ import { Avatar,
     Checkbox,
     Button,
     Alert
-}                                           from "@mui/material";
-import { useNavigate } from 'react-router-dom';
-import { getSession, setSession } from '../../utils/session';
+}                                                           from "@mui/material";
+
 
 
 function Login() {
@@ -53,9 +54,9 @@ function Login() {
     })
 
     useEffect(() =>{
-        let user = getSession('user');
+        let user = getLocalSession('user');
         if ( user ) {
-            //useContext ///TODO
+            setCurrentSession('user',user)
             navigate('/home');
         }
     },[])
@@ -65,6 +66,12 @@ function Login() {
 
         let res = await login(credential);
         let {reply,status,userData}  = res;
+
+        let isRememberChecked = document.getElementById('remember').checked;
+
+        if(isRememberChecked){
+            userData.rememberSession = true;
+        }
 
         if(reply === 'success' && status){
             setSession('user',userData);
@@ -125,9 +132,9 @@ function Login() {
                         value           = {credential.password}
                     />
                     <FormControlLabel
-                        control     = {<Checkbox value="remember" color="primary" />}
-                        disabled    = {true}
-                        label       = "Remember me"
+                        required
+                        control         = {<Checkbox id="remember" color="primary" />}
+                        label           = "Remember me"
                     />
                     <Button
                         fullWidth
