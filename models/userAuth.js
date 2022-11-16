@@ -36,4 +36,11 @@ mongo.create = async function(data){
 		return doc;
 }
 
+mongo.getUser = async function(query) {
+	const filter 		= {email:query};
+	const projection	= {_id:0,password:0}
+	const res 			= await userSchema.findOne(filter,projection);
+	return res;
+}
+
 module.exports = mongo;

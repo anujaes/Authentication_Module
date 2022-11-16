@@ -4,7 +4,6 @@ import { LockOutlined }                                     from "@mui/icons-mat
 import { useNavigate }                                      from 'react-router-dom';
 import { login }                                            from '../../apis/login';
 import { isValidEmail }                                     from '../../utils/validateEmail';
-import { setSession, getLocalSession, setCurrentSession }   from '../../utils/session';
 import { Avatar,
     Box,
     Typography,
@@ -53,14 +52,6 @@ function Login() {
         checkFormValidation()
     })
 
-    useEffect(() =>{
-        let user = getLocalSession('user');
-        if ( user ) {
-            setCurrentSession('user',user)
-            navigate('/home');
-        }
-    },[])
-
     const handleForm = async(event) => {
         event.preventDefault();
 
@@ -69,14 +60,15 @@ function Login() {
 
         let isRememberChecked = document.getElementById('remember').checked;
 
-        if(isRememberChecked){
-            userData.rememberSession = true;
-        }
+        if (reply === 'success' && status) {
 
-        if(reply === 'success' && status){
-            setSession('user',userData);
+            if (isRememberChecked)
+                localStorage.setItem('user',JSON.stringify({login:true,token:userData}))
+
+            sessionStorage.setItem('user',JSON.stringify({login:true,token:userData}))
+
             setCredential({email:'',password:''});
-            navigate('/home');
+            navigate('/');
         }
 
         if( reply === 'invalid' && status ) {
