@@ -21,7 +21,7 @@ function Home() {
         if(!storedSession)
             storedSession = JSON.parse(localStorage.getItem('user'));
 
-        if( storedSession.login) {
+        if( storedSession?.login) {
             const currentUser = await authentication(storedSession);
             if(currentUser)
                 setCurrentUser({
