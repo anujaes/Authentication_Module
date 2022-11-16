@@ -1,8 +1,9 @@
 import '../../css/login.css'
-import { login }                            from '../../apis/login';
-import { isValidEmail }                     from '../../utils/validateEmail';
-import { LockOutlined }                     from "@mui/icons-material";
-import React, { useEffect, useState }       from "react";
+import React, { useEffect, useState }                       from "react";
+import { LockOutlined }                                     from "@mui/icons-material";
+import { useNavigate }                                      from 'react-router-dom';
+import { login }                                            from '../../apis/login';
+import { isValidEmail }                                     from '../../utils/validateEmail';
 import { Avatar,
     Box,
     Typography,
@@ -13,8 +14,8 @@ import { Avatar,
     Checkbox,
     Button,
     Alert
-}                                           from "@mui/material";
-import { useNavigate } from 'react-router-dom';
+}                                                           from "@mui/material";
+
 
 
 function Login() {
@@ -43,7 +44,7 @@ function Login() {
 
     function isValid(){
         if(!isValidEmail(credential.email)){
-            showAlert({severity:"warning",message:'incorrect email!'},5)
+            showAlert({severity:"error",message:'incorrect email!'},5)
         }
     }
 
@@ -54,16 +55,28 @@ function Login() {
     const handleForm = async(event) => {
         event.preventDefault();
 
-        let res = await login(credential.email,credential.password);
-        let {reply,status} = res;
-        if(reply === 'success' && status)
-            navigate('/home')
+        let res = await login(credential);
+        let {reply,status,userData}  = res;
+
+        let isRememberChecked = document.getElementById('remember').checked;
+
+        if (reply === 'success' && status) {
+
+            if (isRememberChecked)
+                localStorage.setItem('user',JSON.stringify({login:true,token:userData}))
+
+            sessionStorage.setItem('user',JSON.stringify({login:true,token:userData}))
+
+            setCredential({email:'',password:''});
+            navigate('/');
+        }
+
         if( reply === 'invalid' && status ) {
-            alert('wrong credentials');
+            showAlert({severity:"error",message:'invalid email and password!'},5);
+            setCredential({email:'',password:''});
         }
-        else if ( !status ) {
-            console.log('Error at server:',reply)
-        }
+        if ( !status )
+            showAlert({severity:"error",message:'Something went wrong'},5);
     };
 
     function showAlert(options,sec){
@@ -111,9 +124,9 @@ function Login() {
                         value           = {credential.password}
                     />
                     <FormControlLabel
-                        control     = {<Checkbox value="remember" color="primary" />}
-                        disabled    = {true}
-                        label       = "Remember me"
+                        required
+                        control         = {<Checkbox id="remember" color="primary" />}
+                        label           = "Remember me"
                     />
                     <Button
                         fullWidth

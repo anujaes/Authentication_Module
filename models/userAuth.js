@@ -2,15 +2,20 @@ const userSchema	= require('../schema/userSchema');
 const bcrypt		= require('bcryptjs');
 
 const mongo = {};
-mongo.userLogin = async function(data){
+mongo.login = async function(data){
 	try{
 		const { email, password } = data;
 		const response = await userSchema.findOne({ email: email });
+		let userData = {
+			firstName	: response.firstName,
+			lastName	: response.lastName,
+			email		: response.email
+		}
 		if (response) {
 			const doc = await bcrypt.compare(password, response.password);
-			return doc;
-		}else{
-			return response;
+			return {check:doc,userData:userData};
+		} else {
+			return false;
 		}
 	}
 	catch(error){
@@ -29,6 +34,13 @@ mongo.create = async function(data){
 		const userDoc = userSchema(document);
 		const doc = await userDoc.save();
 		return doc;
+}
+
+mongo.getUser = async function(query) {
+	const filter 		= {email:query};
+	const projection	= {_id:0,password:0}
+	const res 			= await userSchema.findOne(filter,projection);
+	return res;
 }
 
 module.exports = mongo;

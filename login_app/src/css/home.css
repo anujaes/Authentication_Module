@@ -1,0 +1,13 @@
+.home{
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    /* background: rgb(2,0,36); */
+background: linear-gradient(135deg, rgba(2,0,36,1) 0%, rgba(27,9,121,1) 38%, rgba(9,121,69,1) 78%);
+}
+.home>div{
+    width: fit-content;
+    text-align: center;
+}
